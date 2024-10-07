@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # Carrega os dados
-dados = pd.read_csv('data_export_20241007.csv', sep = ',')
+dados = pd.read_csv('C:\\Users\\bruno\\OneDrive\\01_D2ia\\Mauricio\\data_export_20241007.csv', sep = ',')
 max = '2021-06-01'
 dados = dados[dados['dtBase'] == max]
 
