@@ -4,7 +4,7 @@ import numpy as np
 
 # Carrega os dados
 dados = pd.read_csv('https://raw.githubusercontent.com/BrunoMeloSlv/arqmedes/refs/heads/main/dados.csv', sep = ',')
-max = '2021-06-01'
+max = '2024-06-01'
 dados = dados[dados['dtBase'] == max]
 
 # Função MelhoresEscolhas
