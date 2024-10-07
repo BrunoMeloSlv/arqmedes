@@ -144,7 +144,7 @@ for coluna_filtro, condicao, valor_filtro in filtros:
             dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] <= valor_filtro]
 
 # Exibir os dados filtrados
-st.write("Dados após aplicação dos filtros:")
+st.write("Dados após aplicação dos filtros, Data de Referência 01/06/2024:")
 st.dataframe(dados_filtrados)
 
 # Verifica se o usuário selecionou colunas suficientes
