@@ -44,6 +44,7 @@ dados.rename(columns={
 }, inplace=True)
 
 
+
 # Função MelhoresEscolhas
 def MelhoresEscolhas(data, positivo, negativo, empresas):
     df = data.drop(columns=[empresas])
@@ -124,25 +125,25 @@ import pandas as pd
 
 # Supõe-se que os dados já estão carregados no DataFrame 'dados'
 
-st.title('Seleção de Colunas Positivas e Negativas para Análise AHP')
+st.title('Seleção de Colunas Positivas e Negativas para Análise AHP Gaussiano')
 
 # Lista de colunas disponíveis
+dados.drop(columns=['Administradora','CNPJ','Tipo Administradora ID','Segmento ID'], inplace= True)
 
 df= dados.drop(columns=[
-    'Administradora',
-    'CNPJ',
-    'Tipo Administradora ID',
     'Tipo Administradora',
-    'Segmento ID',
     'Nome Administradora',
     'Data Base',
     'Segmento'
 ])
 
+
+
 colunas_disponiveis = list(df.columns)
 
 # Adicionar os filtros na barra lateral (sidebar)
 st.sidebar.header('Filtros')
+st.sidebar.text('Data de atualização 01/06/2024')
 
 # Selecionar a coluna de empresas
 coluna_empresas = 'Nome Administradora'  # Coluna fixa de empresas
@@ -155,9 +156,9 @@ segmento = st.sidebar.selectbox('Selecione o Segmento:', dados['Segmento'].uniqu
 
 # Aplicar os dois filtros principais de tipo administradora e segmento
 dados_filtrados = dados[
-    (dados['Tipo Administradora'] == tipo_administradora) &
+    (dados['Tipo Administradora'] == tipo_administradora) & 
     (dados['Segmento'] == segmento)
-]
+].reset_index(drop=True)
 
 # Selecionar colunas positivas
 colunas_positivas = st.sidebar.multiselect('Selecione as colunas positivas:', colunas_disponiveis)
