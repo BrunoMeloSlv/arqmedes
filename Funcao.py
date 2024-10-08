@@ -7,6 +7,43 @@ dados = pd.read_csv('https://raw.githubusercontent.com/BrunoMeloSlv/arqmedes/ref
 max = '2024-06-01'
 dados = dados[dados['dtBase'] == max]
 
+dados.rename(columns={
+    'idAdministradora': 'Administradora',
+    'strCnpjAdministradora': 'CNPJ',
+    'strNomeAdministradora': 'Nome Administradora',
+    'idTipoAdministradora': 'Tipo Administradora ID',
+    'NomeTipoAdministradora': 'Tipo Administradora',
+    'idSegmento': 'Segmento ID',
+    'strNomeSegmento': 'Segmento',
+    'dtBase': 'Data Base',
+    'fltTaxaAdministracao': 'Taxa de Administração',
+    'intQuantidadeGruposAtivos': 'Grupos Ativos',
+    'intQuantidadeGruposConstituidosMes': 'Grupos Constituidos no Mês',
+    'intQuantidadeGruposEncerradosMes': 'Grupos Encerrados no Mês',
+    'intQuantidadeCotasComercializadasMes': 'Cotas Comercializadas no Mês',
+    'intQuantidadeCotasExcluidasComercializar': 'Cotas Excluídas de Comercialização',
+    'intQuantidadeAcumuladaCotasAtivasContempladas': 'Cotas Ativas Contempladas Acumuladas',
+    'intQuantidadeCotasAtivasNaoContempladas': 'Cotas Ativas Não Contempladas',
+    'intQuantidadeCotasAtivasContempladasMes': 'Cotas Ativas Contempladas no Mês',
+    'intQuantidadeCotasAtivasAdimplentes': 'Cotas Ativas Adimplentes',
+    'intQuantidadeCotasAtivasContempladasInadimplente': 'Cotas Contempladas Inadimplentes',
+    'intQuantidadeCotasAtivasNaoContempladasInadimplentes': 'Cotas Não Contempladas Inadimplentes',
+    'intQuantidadeCotasExcluidas': 'Cotas Excluídas',
+    'intQuantidadeCotasAtivasQuitadas': 'Cotas Ativas Quitadas',
+    'intQuantidadeCotasAtivasComCreditoPendenteUtilizacao': 'Cotas com Crédito Pendente',
+    'fltReceitaOperacional': 'Receita Operacional',
+    'fltReceitaNaoOperacional': 'Receita Não Operacional',
+    'fltDespesaOperacional': 'Despesa Operacional',
+    'fltDespesaAdministrativa': 'Despesa Administrativa',
+    'fltDespesaNaoOperacional': 'Despesa Não Operacional',
+    'fltResultado': 'Resultado',
+    'fltIndiceDASobreReceita': 'Índice DA Sobre Receita',
+    'fltIndiceDOSemDASobreReceita': 'Índice DO Sem DA Sobre Receita',
+    'fltIndiceDOSobreReceita': 'Índice DO Sobre Receita',
+    'fltIndiceResultadoSobreReceita': 'Índice Resultado Sobre Receita'
+}, inplace=True)
+
+
 # Função MelhoresEscolhas
 def MelhoresEscolhas(data, positivo, negativo, empresas):
     df = data.drop(columns=[empresas])
@@ -82,27 +119,44 @@ def MelhoresEscolhas(data, positivo, negativo, empresas):
     return melhores_escolhas, fator.T
 
 # Aplicação Streamlit
+import streamlit as st
+import pandas as pd
+
+# Supõe-se que os dados já estão carregados no DataFrame 'dados'
+
 st.title('Seleção de Colunas Positivas e Negativas para Análise AHP')
 
 # Lista de colunas disponíveis
-colunas_disponiveis = list(dados.columns)
+
+df= dados.drop(columns=[
+    'Administradora',
+    'CNPJ',
+    'Tipo Administradora ID',
+    'Tipo Administradora',
+    'Segmento ID',
+    'Nome Administradora',
+    'Data Base',
+    'Segmento'
+])
+
+colunas_disponiveis = list(df.columns)
 
 # Adicionar os filtros na barra lateral (sidebar)
 st.sidebar.header('Filtros')
 
 # Selecionar a coluna de empresas
-coluna_empresas = 'strNomeAdministradora'  # Coluna fixa de empresas
+coluna_empresas = 'Nome Administradora'  # Coluna fixa de empresas
 
 # Selecionar tipo adm
-tipo_administradora = st.sidebar.selectbox('Selecione o Tipo de Administradora:', dados['NomeTipoAdministradora'].unique())
+tipo_administradora = st.sidebar.selectbox('Selecione o Tipo de Administradora:', dados['Tipo Administradora'].unique())
 
 # Selecionar tipo segmento
-segmento = st.sidebar.selectbox('Selecione o Segmento:', dados['strNomeSegmento'].unique())
+segmento = st.sidebar.selectbox('Selecione o Segmento:', dados['Segmento'].unique())
 
 # Aplicar os dois filtros principais de tipo administradora e segmento
 dados_filtrados = dados[
-    (dados['NomeTipoAdministradora'] == tipo_administradora) &
-    (dados['strNomeSegmento'] == segmento)
+    (dados['Tipo Administradora'] == tipo_administradora) &
+    (dados['Segmento'] == segmento)
 ]
 
 # Selecionar colunas positivas
@@ -131,20 +185,27 @@ for i in range(int(num_filtros)):
 # Aplicar os filtros selecionados
 for coluna_filtro, condicao, valor_filtro in filtros:
     if valor_filtro:
+        # Tentar converter o valor do filtro em float
         try:
-            valor_filtro = float(valor_filtro)
+            # Verifica se a coluna é numérica
+            if pd.api.types.is_numeric_dtype(dados[coluna_filtro]):
+                valor_filtro = float(valor_filtro)
+                
+                if condicao == 'Igual a':
+                    dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] == valor_filtro]
+                elif condicao == 'Maior ou igual a':
+                    dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] >= valor_filtro]
+                elif condicao == 'Menor ou igual a':
+                    dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] <= valor_filtro]
+            else:
+                # Se não for numérica, compara como string
+                if condicao == 'Igual a':
+                    dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] == valor_filtro]
         except ValueError:
-            pass  # Mantém o valor como string se não for conversível para float
-
-        if condicao == 'Igual a':
-            dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] == valor_filtro]
-        elif condicao == 'Maior ou igual a':
-            dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] >= valor_filtro]
-        elif condicao == 'Menor ou igual a':
-            dados_filtrados = dados_filtrados[dados_filtrados[coluna_filtro] <= valor_filtro]
+            st.warning(f"Valor '{valor_filtro}' não é um número válido para a coluna '{coluna_filtro}'.")
 
 # Exibir os dados filtrados
-st.write("Dados após aplicação dos filtros, Data de Referência 01/06/2024:")
+st.write("Dados após aplicação dos filtros:")
 st.dataframe(dados_filtrados)
 
 # Verifica se o usuário selecionou colunas suficientes
